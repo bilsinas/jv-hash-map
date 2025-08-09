@@ -1,12 +1,10 @@
 package core.basesyntax;
 
 import java.util.Objects;
-
 public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
     private static final int RESIZE_MULTIPLIER = 2;
-
     private Node<K, V>[] table;
     private int size;
     private int threshold;
@@ -22,14 +20,12 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
             resize();
         }
         int index = getIndex(key, table.length);
-
         Node<K, V> current = table[index];
         if (current == null) {
             table[index] = new Node<>(key, value, null);
             size++;
             return;
         }
-
         Node<K, V> prev = null;
         while (current != null) {
             if (Objects.equals(current.key, key)) {
@@ -67,7 +63,6 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         table = new Node[newCapacity];
         threshold = (int) (newCapacity * DEFAULT_LOAD_FACTOR);
         size = 0;
-
         for (Node<K, V> headNode : oldTable) {
             while (headNode != null) {
                 Node<K, V> nextNode = headNode.next;
@@ -91,7 +86,6 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         private final K key;
         private V value;
         private Node<K, V> next;
-
         Node(K key, V value, Node<K, V> next) {
             this.key = key;
             this.value = value;
