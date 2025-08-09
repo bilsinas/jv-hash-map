@@ -5,8 +5,9 @@ import java.util.Objects;
 public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final float DEFAULT_LOAD_FACTOR = 0.75f;
+    private static final int RESIZE_MULTIPLIER = 2;
 
-    private Node<K, V>[] table; // єдиний масив
+    private Node<K, V>[] table;
     private int size;
     private int threshold;
 
@@ -32,7 +33,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         Node<K, V> prev = null;
         while (current != null) {
             if (Objects.equals(current.key, key)) {
-                current.value = value; // оновлюємо значення
+                current.value = value;
                 return;
             }
             prev = current;
@@ -62,15 +63,19 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
 
     private void resize() {
         Node<K, V>[] oldTable = table;
-        int newCapacity = oldTable.length * 2;
+        int newCapacity = oldTable.length * RESIZE_MULTIPLIER;
         table = new Node[newCapacity];
         threshold = (int) (newCapacity * DEFAULT_LOAD_FACTOR);
         size = 0;
 
         for (Node<K, V> headNode : oldTable) {
             while (headNode != null) {
-                put(headNode.key, headNode.value);
-                headNode = headNode.next;
+                Node<K, V> nextNode = headNode.next;
+                int index = getIndex(headNode.key, newCapacity);
+                headNode.next = table[index];
+                table[index] = headNode;
+                size++;
+                headNode = nextNode;
             }
         }
     }
@@ -79,13 +84,13 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         if (key == null) {
             return 0;
         }
-        return Math.abs(key.hashCode() % length);
+        return (key.hashCode() & 0x7fffffff) % length;
     }
 
     private static class Node<K, V> {
-        K key;
-        V value;
-        Node<K, V> next;
+        private final K key;
+        private V value;
+        private Node<K, V> next;
 
         Node(K key, V value, Node<K, V> next) {
             this.key = key;
